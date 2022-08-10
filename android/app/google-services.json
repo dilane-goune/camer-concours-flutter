@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "466053640806",
+    "project_id": "camer-concours",
+    "storage_bucket": "camer-concours.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466053640806:android:120007abff7469c8a333a7",
+        "android_client_info": {
+          "package_name": "com.example.carmer_concours"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466053640806-9ljq32nniguppls3tgpfji9tdmeq1uqo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBF8CL72biq8jnklTggKvf-ip0mHTibDgA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466053640806-9ljq32nniguppls3tgpfji9tdmeq1uqo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
