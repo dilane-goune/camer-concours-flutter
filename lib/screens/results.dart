@@ -4,6 +4,7 @@ import 'package:carmer_concours/components/item_list_view.dart';
 import 'package:carmer_concours/components/my_drawer.dart';
 import 'package:carmer_concours/utils/my_search_delegate.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:division/division.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -25,32 +26,35 @@ class _ResultScreenState extends State<ResultScreen> {
   final results = <DocumentSnapshot>[];
   final db = FirebaseFirestore.instance;
   static const _maxLimit = 100;
-  var _failedToLoad = false;
+  var _noConnection = false;
   var _isGettingMore = false;
   final ScrollController _scrollController = ScrollController();
 
-  void handleError(Object e) {
-    setState(() {
-      _failedToLoad = true;
-    });
-  }
-
   Future<void> getData(bool isRefresh) async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      _noConnection = true;
+      results.clear();
+    } else {
+      _noConnection = false;
+    }
+
     final QuerySnapshot<Map<String, dynamic>> querySnapShoot;
     if (isRefresh) results.clear();
     if (results.isEmpty) {
       querySnapShoot = await db
           .collection('Results')
+          .orderBy('publisedDate', descending: true)
           .limit(_maxLimit)
-          .get()
-          .catchError(handleError);
+          .get();
     } else {
       querySnapShoot = await db
           .collection('Results')
+          .orderBy('publisedDate', descending: true)
           .startAfterDocument(results[results.length - 1])
           .limit(_maxLimit)
-          .get()
-          .catchError(handleError);
+          .get();
     }
 
     if (isRefresh) {
@@ -91,8 +95,18 @@ class _ResultScreenState extends State<ResultScreen> {
         style: ParentStyle(),
         child: RefreshIndicator(
           onRefresh: onRefresh,
-          child: _failedToLoad
-              ? const Center(child: Text('Failed to load data'))
+          child: _noConnection
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(AppLocalizations.of(context)!.noIternetConnection),
+                      ElevatedButton(
+                          onPressed: () => getData(false),
+                          child: const Text('Refresh'))
+                    ],
+                  ),
+                )
               : listView(data, 'Results', controller: _scrollController,
                   getMore: () {
                   setState(() {

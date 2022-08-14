@@ -8,7 +8,7 @@
   "numberOfPlaces": "Nombre de places",
   "writingDate": "Date de Composition",
   "documebtsDeadLine": "Date limit des dossier",
-  "requiredLevels": "Diplomes requis",
+  "requiredLevels": "Niveau",
   "publisedDate": "Publié le",
   "numberOfCandidates": "Effective total",
   "numberPassed": "Effective réussit",
@@ -27,5 +27,9 @@
   "noSearchResutFound": "Aucun résultat trouvé",
   "noMoreResult": "Aucune autre occurrence trouvée. Souhaitez-vous continuer à chercher depuis le début ?",
   "yes": "Oui",
-  "no": "Non"
+  "no": "Non",
+  "close": "Fermer",
+  "localOf": "Of",
+  "noIternetConnection": "Pas de connexion Internet.",
+  "refresh": "Actualiser"
 }

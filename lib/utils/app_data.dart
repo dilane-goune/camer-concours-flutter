@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,7 +42,9 @@ class AppData extends ChangeNotifier {
           sharedPreferences.setBool('isOldUser', true);
         });
       }
-    } on Exception {}
+    } catch (e) {
+      if (kDebugMode) print(e);
+    }
   }
 }
 

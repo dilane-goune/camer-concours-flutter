@@ -11,7 +11,7 @@
   "numberOfPlaces": "Number of places",
   "writingDate": "Writing date",
   "documebtsDeadLine": "Documents deadline",
-  "requiredLevels": "Required levels",
+  "requiredLevels": "Level",
   "publisedDate": "Publised on",
   "numberOfCandidates": "Number of candidates",
   "numberPassed": "Number passed",
@@ -30,5 +30,9 @@
   "noSearchResutFound": "No result found",
   "noMoreResult": "No more occurrences found. Would you like to continue to search from the beginning?",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "close": "Close",
+  "localOf": "Of",
+  "noIternetConnection": "No internet connection.",
+  "refresh": "Refresh"
 }

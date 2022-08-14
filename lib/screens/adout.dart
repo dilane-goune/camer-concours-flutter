@@ -24,7 +24,7 @@ class AboutScreen extends StatelessWidget {
                     const Center(
                       child: CircleAvatar(
                         radius: 60,
-                        foregroundImage: AssetImage('assets/images/logo.jpeg'),
+                        // foregroundImage: AssetImage('assets/images/logo.jpeg'),
                         child: Icon(
                           Icons.book,
                           size: 70,
@@ -46,7 +46,7 @@ class AboutScreen extends StatelessWidget {
                       'Version $version',
                       style: TxtStyle()..textAlign.center(),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
 
                     Txt(
                       'Developed by',
@@ -55,38 +55,21 @@ class AboutScreen extends StatelessWidget {
                         ..margin(bottom: 5),
                     ),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Txt(
-                          'Dilane Goune',
-                          style: TxtStyle()
-                            ..fontSize(16)
-                            ..bold(),
-                        ),
-                        // Txt(
-                        //   'website',
-                        //   style: TxtStyle()
-                        //     ..italic()
-                        //     ..textColor(Colors.blue),
-                        // ),
-                      ],
+                    const ListTile(
+                      leading: Icon(Icons.person, size: 40),
+                      title: Text('Dilane Goune'),
+                      subtitle: Text('Sofware Developer'),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Txt(
-                          'Ngniguepa Faha',
-                          style: TxtStyle()
-                            ..fontSize(16)
-                            ..bold(),
-                        ),
-                      ],
-                    ),
+                    const Divider(),
 
-                    // Txt(version),
-                    // Txt(buildNumber),
-                    const SizedBox(height: 20),
+                    const ListTile(
+                      leading: Icon(Icons.person, size: 40),
+                      title: Text('Ngniguepa Faha'),
+                      subtitle: Text('Sofware Developer'),
+                    ),
+                    const Divider(),
+
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -96,9 +79,9 @@ class AboutScreen extends StatelessWidget {
                           },
                           child: const Text('Licences'),
                         ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text('Rate this App'),
+                        const TextButton(
+                          onPressed: null,
+                          child: Text('Rate this App'),
                         ),
                       ],
                     )

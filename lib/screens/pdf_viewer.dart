@@ -1,6 +1,15 @@
+import 'dart:io';
+
+import 'package:carmer_concours/utils/ad_helper.dart';
 import 'package:division/division.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// Represents the PDFScreen for Navigation
 class PDFScreen extends StatefulWidget {
@@ -10,21 +19,37 @@ class PDFScreen extends StatefulWidget {
   const PDFScreen({Key? key, required this.title, required this.pdf})
       : super(key: key);
   @override
+  // ignore: library_private_types_in_public_api
   _PDFScreen createState() => _PDFScreen();
 }
 
 class _PDFScreen extends State<PDFScreen> {
   final PdfViewerController _pdfViewerController = PdfViewerController();
   final GlobalKey<SearchToolbarState> _textSearchKey = GlobalKey();
-  bool _showToolbar = false;
+  bool _showSearchBar = false;
   bool _showScrollHead = true;
-  bool _isSearching = false;
+  // bool _shouldPopWithoutAd = false;
+
+  // OverlayEntry? _overlayEntry;
+
+  InterstitialAd? _interstitialAd;
+  bool errorLoadingPDF = false;
 
   LocalHistoryEntry? _historyEntry;
 
   @override
   void initState() {
     super.initState();
+    _loadInterstitialAd();
+    super.initState();
+    FirebaseAnalytics.instance
+        .logEvent(name: "opened_a_pdf", parameters: {"title": widget.title});
+  }
+
+  @override
+  void dispose() {
+    _interstitialAd?.dispose();
+    super.dispose();
   }
 
   void _ensureHistoryEntry() {
@@ -40,109 +65,193 @@ class _PDFScreen extends State<PDFScreen> {
   void _handleHistoryEntryRemoved() {
     _textSearchKey.currentState?.clearSearch();
     setState(() {
-      _showToolbar = false;
+      _showSearchBar = false;
     });
     _historyEntry = null;
   }
 
+  // void _showContextMenu(
+  //     BuildContext context, PdfTextSelectionChangedDetails details) {
+  //   final OverlayState overlayState = Overlay.of(context)!;
+  //   _overlayEntry = OverlayEntry(
+  //     builder: (context) => Positioned(
+  //       top: details.globalSelectedRegion!.center.dy - 55,
+  //       left: details.globalSelectedRegion!.bottomLeft.dx,
+  //       child: TextButton(
+  //         onPressed: () {
+  //           Clipboard.setData(ClipboardData(text: details.selectedText));
+  //           _pdfViewerController.clearSelection();
+  //         },
+  //         child: Txt(
+  //           'Copy',
+  //           style: TxtStyle()
+  //             ..padding(horizontal: 10, vertical: 5)
+  //             ..background.color(Colors.grey.shade400)
+  //             ..borderRadius(all: 15),
+  //         ),
+  //       ),
+  //     ),
+  //     maintainState: false,
+  //   );
+  //   _shouldPopWithoutAd = true;
+  //   overlayState.insert(_overlayEntry!);
+  //   _shouldPopWithoutAd = false;
+  // }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _showToolbar
-          ? AppBar(
-              toolbarHeight: 50,
-              flexibleSpace: SafeArea(
-                child: SearchToolbar(
-                  key: _textSearchKey,
-                  showTooltip: true,
-                  controller: _pdfViewerController,
-                  onTap: (Object toolbarItem) async {
-                    if (toolbarItem.toString() == 'Cancel Search') {
+    return WillPopScope(
+      onWillPop: () async {
+        // if (_shouldPopWithoutAd) return false;
+        if (_interstitialAd != null && !errorLoadingPDF) {
+          _interstitialAd?.show();
+        }
+
+        return true;
+      },
+      child: Scaffold(
+        appBar: _showSearchBar
+            ? AppBar(
+                toolbarHeight: 50,
+                flexibleSpace: SafeArea(
+                  child: SearchToolbar(
+                    key: _textSearchKey,
+                    showTooltip: true,
+                    controller: _pdfViewerController,
+                    onTap: (Object toolbarItem) async {
+                      if (toolbarItem.toString() == 'Cancel Search') {
+                        setState(() {
+                          _showSearchBar = false;
+                          _showScrollHead = true;
+                        });
+                      }
+                      if (toolbarItem.toString() == 'noResultFound') {
+                        setState(() {
+                          _textSearchKey.currentState?._showToast = true;
+                        });
+                        await Future.delayed(const Duration(seconds: 1));
+                        setState(() {
+                          _textSearchKey.currentState?._showToast = false;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                automaticallyImplyLeading: false,
+              )
+            : AppBar(
+                title: Text(widget.title, style: const TextStyle(fontSize: 16)),
+                leading: const BackButton(),
+                toolbarHeight: 50,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
                       setState(() {
-                        _showToolbar = false;
-                        _showScrollHead = true;
-                        if (Navigator.canPop(context)) {
-                          Navigator.maybePop(context);
-                        }
+                        _showScrollHead = false;
+                        _showSearchBar = true;
+                        _ensureHistoryEntry();
                       });
-                    }
-                    if (toolbarItem.toString() == 'noResultFound') {
-                      setState(() {
-                        _textSearchKey.currentState?._showToast = true;
-                      });
-                      await Future.delayed(Duration(seconds: 1));
-                      setState(() {
-                        _textSearchKey.currentState?._showToast = false;
-                      });
-                    }
-                  },
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.keyboard_arrow_up),
+                    onPressed: () {
+                      _pdfViewerController.previousPage();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    onPressed: () {
+                      _pdfViewerController.nextPage();
+                    },
+                  )
+                ],
+                automaticallyImplyLeading: false,
+              ),
+        body: Stack(
+          children: [
+            SfPdfViewer.network(
+              widget.pdf,
+              controller: _pdfViewerController,
+              canShowScrollHead: _showScrollHead,
+              onDocumentLoadFailed: handleFailedToLoadPdf,
+              // onTextSelectionChanged: (PdfTextSelectionChangedDetails details) {
+              //   if (details.selectedText == null && _overlayEntry != null) {
+              //     _overlayEntry!.remove();
+              //     _overlayEntry = null;
+              //   } else if (details.selectedText != null &&
+              //       _overlayEntry == null) {
+              //     _showContextMenu(context, details);
+              //   }
+              // },
+              enableTextSelection: false,
+            ),
+            Visibility(
+              visible: _textSearchKey.currentState?._showToast ?? false,
+              child: Center(
+                child: Txt(
+                  AppLocalizations.of(context)!.noSearchResutFound,
+                  style: TxtStyle()
+                    ..textAlign.center()
+                    ..padding(horizontal: 10, vertical: 8)
+                    ..borderRadius(all: 25),
                 ),
               ),
-              automaticallyImplyLeading: false,
-            )
-          : AppBar(
-              title: Text(widget.title, style: const TextStyle(fontSize: 16)),
-              toolbarHeight: 50,
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    setState(() {
-                      _showScrollHead = false;
-                      _showToolbar = true;
-                      _ensureHistoryEntry();
-                    });
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.keyboard_arrow_up),
-                  onPressed: () {
-                    _pdfViewerController.previousPage();
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  onPressed: () {
-                    _pdfViewerController.nextPage();
-                  },
-                )
-              ],
-              automaticallyImplyLeading: false,
-              backgroundColor: Color(0xFFFAFAFA),
             ),
-      body: Stack(
-        children: [
-          SfPdfViewer.network(
-            widget.pdf,
-            controller: _pdfViewerController,
-            canShowScrollHead: _showScrollHead,
-          ),
-          Visibility(
-            visible: _textSearchKey.currentState?._showToast ?? false,
-            child: Center(
-              child: Txt(
-                'No Result found',
-                style: TxtStyle()
-                  ..textAlign.center()
-                  ..background.color(Colors.grey.shade300)
-                  ..padding(horizontal: 10, vertical: 8)
-                  ..borderRadius(all: 25),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void handleFailedToLoadPdf(PdfDocumentLoadFailedDetails e) {
+    errorLoadingPDF = true;
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('PDF Error'),
+            content: const Text('An error occured while loading the pdf file.'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Close'))
+            ],
+          );
+        });
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              Navigator.of(context).pop();
+            },
+          );
+
+          setState(() {
+            _interstitialAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          if (kDebugMode) print('failed to load ad');
+        },
       ),
     );
   }
 }
 
-/// Signature for the [SearchToolbar.onTap] callback.
 typedef SearchTapCallback = void Function(Object item);
 
-/// SearchToolbar widget
 class SearchToolbar extends StatefulWidget {
-  ///it describe the search toolbar constructor
-  SearchToolbar({
+  const SearchToolbar({
     this.controller,
     this.onTap,
     this.showTooltip = true,
@@ -163,19 +272,19 @@ class SearchToolbarState extends State<SearchToolbar> {
   int _searchTextLength = 0;
 
   /// Indicates whether search toolbar items need to be shown or not.
-  bool _showItem = false;
+  var _showItem = false;
 
   /// Indicates whether search toast need to be shown or not.
-  bool _showToast = false;
+  var _showToast = false;
 
   /// Indicates whether search is going on.
-  bool _isSearching = false;
+  var _isSearching = false;
 
   ///An object that is used to retrieve the current value of the TextField.
-  final TextEditingController _editingController = TextEditingController();
+  final _editingController = TextEditingController();
 
   /// An object that is used to retrieve the text search result.
-  PdfTextSearchResult _pdfTextSearchResult = PdfTextSearchResult();
+  var _pdfTextSearchResult = PdfTextSearchResult();
 
   ///An object that is used to obtain keyboard focus and to handle keyboard events.
   FocusNode? focusNode;
@@ -200,60 +309,94 @@ class SearchToolbarState extends State<SearchToolbar> {
     _pdfTextSearchResult.clear();
   }
 
-  ///Display the Alert dialog to search from the beginning
+  ///Display the Aleint _searchTextLength = 0;rt dialog to search from the beginning
   void _showSearchAlertDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          insetPadding: EdgeInsets.all(0),
-          title: Text('Search Result'),
-          content: Container(
-            width: 328.0,
-            child: Text(
-                'No more occurrences found. Would you like to continue to search from the beginning?'),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _pdfTextSearchResult.nextInstance();
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'YES',
-                style: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontStyle: FontStyle.normal,
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.none),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _pdfTextSearchResult.clear();
-                  _editingController.clear();
-                  _showItem = false;
-                  focusNode?.requestFocus();
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'NO',
-                style: TextStyle(
-                  fontFamily: 'Roboto',
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.w500,
-                  decoration: TextDecoration.none,
+    if (Platform.isIOS) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text(AppLocalizations.of(context)!.search),
+              content: Text(AppLocalizations.of(context)!.noMoreResult),
+              actions: [
+                CupertinoDialogAction(
+                  onPressed: () {
+                    setState(() {
+                      _pdfTextSearchResult.nextInstance();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Txt(
+                    AppLocalizations.of(context)!.yes,
+                    style: TxtStyle()
+                      ..fontFamily('Roboto')
+                      ..fontWeight(FontWeight.w500),
+                  ),
+                ),
+                CupertinoDialogAction(
+                  onPressed: () {
+                    setState(() {
+                      _pdfTextSearchResult.clear();
+                      _editingController.clear();
+                      _showItem = false;
+                      focusNode?.requestFocus();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Txt(
+                    AppLocalizations.of(context)!.no,
+                    style: TxtStyle()
+                      ..fontFamily('Roboto')
+                      ..fontWeight(FontWeight.w500),
+                  ),
+                ),
+              ],
+            );
+          });
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(AppLocalizations.of(context)!.search),
+            content: Text(AppLocalizations.of(context)!.noMoreResult),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _pdfTextSearchResult.nextInstance();
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: Txt(
+                  AppLocalizations.of(context)!.yes,
+                  style: TxtStyle()
+                    ..fontFamily('Roboto')
+                    ..fontWeight(FontWeight.w500),
                 ),
               ),
-            ),
-          ],
-        );
-      },
-    );
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _pdfTextSearchResult.clear();
+                    _editingController.clear();
+                    _showItem = false;
+                    focusNode?.requestFocus();
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: Txt(
+                  AppLocalizations.of(context)!.no,
+                  style: TxtStyle()
+                    ..fontFamily('Roboto')
+                    ..fontWeight(FontWeight.w500),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -261,7 +404,7 @@ class SearchToolbarState extends State<SearchToolbar> {
     return Row(
       children: <Widget>[
         IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             size: 24,
           ),
@@ -273,16 +416,15 @@ class SearchToolbarState extends State<SearchToolbar> {
         ),
         Flexible(
           child: TextFormField(
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
             enableInteractiveSelection: false,
             focusNode: focusNode,
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.search,
             controller: _editingController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: InputBorder.none,
               hintText: 'Find...',
-              hintStyle: TextStyle(color: Color(0x00000000).withOpacity(0.34)),
             ),
             onChanged: (text) {
               if (_searchTextLength < _editingController.value.text.length) {
@@ -299,31 +441,27 @@ class SearchToolbarState extends State<SearchToolbar> {
               setState(() {
                 _isSearching = true;
               });
-              _pdfTextSearchResult =
-                  await widget.controller!.searchText(_editingController.text);
+              if (_editingController.value.text.isNotEmpty) {
+                _pdfTextSearchResult = await widget.controller!
+                    .searchText(_editingController.text);
+
+                if (_pdfTextSearchResult.totalInstanceCount == 0) {
+                  widget.onTap?.call('noResultFound');
+                } else {
+                  setState(() {
+                    _showItem = true;
+                  });
+                }
+              }
               setState(() {
                 _isSearching = false;
               });
-              if (_pdfTextSearchResult.totalInstanceCount == 0) {
-                widget.onTap?.call('noResultFound');
-              } else {
-                setState(() {
-                  _showItem = true;
-                });
-              }
             },
           ),
         ),
         Visibility(
           visible: _isSearching,
-          child: SizedBox(
-            height: 15,
-            width: 15,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Colors.grey,
-            ),
-          ),
+          child: const CircularProgressIndicator(strokeWidth: 3),
         ),
         Visibility(
           visible: _editingController.text.isNotEmpty,
@@ -331,8 +469,8 @@ class SearchToolbarState extends State<SearchToolbar> {
             color: Colors.transparent,
             child: IconButton(
               icon: Icon(
-                Icons.clear,
-                color: Color.fromRGBO(0, 0, 0, 0.54),
+                _isSearching ? Icons.abc : Icons.clear,
+                color: const Color.fromRGBO(0, 0, 0, 0.54),
                 size: 24,
               ),
               onPressed: () {
@@ -356,25 +494,28 @@ class SearchToolbarState extends State<SearchToolbar> {
               Text(
                 '${_pdfTextSearchResult.currentInstanceIndex}',
                 style: TextStyle(
-                    color: Color.fromRGBO(0, 0, 0, 0.54).withOpacity(0.87),
+                    color:
+                        const Color.fromRGBO(0, 0, 0, 0.54).withOpacity(0.87),
                     fontSize: 16),
               ),
               Text(
-                ' of ',
+                ' ${AppLocalizations.of(context)!.localOf.toLowerCase()} ',
                 style: TextStyle(
-                    color: Color.fromRGBO(0, 0, 0, 0.54).withOpacity(0.87),
+                    color:
+                        const Color.fromRGBO(0, 0, 0, 0.54).withOpacity(0.87),
                     fontSize: 16),
               ),
               Text(
                 '${_pdfTextSearchResult.totalInstanceCount}',
                 style: TextStyle(
-                    color: Color.fromRGBO(0, 0, 0, 0.54).withOpacity(0.87),
+                    color:
+                        const Color.fromRGBO(0, 0, 0, 0.54).withOpacity(0.87),
                     fontSize: 16),
               ),
               Material(
                 color: Colors.transparent,
                 child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.navigate_before,
                     color: Color.fromRGBO(0, 0, 0, 0.54),
                     size: 24,
@@ -391,7 +532,7 @@ class SearchToolbarState extends State<SearchToolbar> {
               Material(
                 color: Colors.transparent,
                 child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.navigate_next,
                     color: Color.fromRGBO(0, 0, 0, 0.54),
                     size: 24,
