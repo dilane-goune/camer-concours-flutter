@@ -42,8 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     AppLocalizations.of(context)!.darkMode,
                     style: TxtStyle()..fontSize(18),
                   ),
-                  Switch(
-                      value: AppData.getDarkMode(), onChanged: toggleDarkMode)
+                  Switch(value: AppData.getDarkMode, onChanged: toggleDarkMode)
                 ],
               ),
             ),

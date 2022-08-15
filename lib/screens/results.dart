@@ -1,79 +1,71 @@
-// ignore_for_file: invalid_return_type_for_catch_error
+import 'dart:io';
 
-import 'package:carmer_concours/components/item_list_view.dart';
 import 'package:carmer_concours/components/my_drawer.dart';
+import 'package:carmer_concours/components/result_item.dart';
+import 'package:carmer_concours/functions/get_data.dart';
 import 'package:carmer_concours/utils/my_search_delegate.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:division/division.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class ResultScreen extends StatefulWidget {
+class ResultsScreen extends StatefulWidget {
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
-  const ResultScreen(
+  const ResultsScreen(
       {Key? key, required this.analytics, required this.observer})
       : super(key: key);
 
   @override
-  State<ResultScreen> createState() => _ResultScreenState();
+  State<ResultsScreen> createState() => _ResultsScreenState();
 }
 
-class _ResultScreenState extends State<ResultScreen> {
-  final results = <DocumentSnapshot>[];
-  final db = FirebaseFirestore.instance;
-  static const _maxLimit = 100;
-  var _noConnection = false;
-  var _isGettingMore = false;
+class _ResultsScreenState extends State<ResultsScreen> {
+  final _results = <DocumentSnapshot>[];
   final ScrollController _scrollController = ScrollController();
+  static const collection = 'Results';
 
-  Future<void> getData(bool isRefresh) async {
-    var connectivityResult = await Connectivity().checkConnectivity();
+  bool _isRefreshing = true;
+  bool _isGettingMore = false;
+  bool _failedToFecth = false;
 
-    if (connectivityResult == ConnectivityResult.none) {
-      _noConnection = true;
-      results.clear();
-    } else {
-      _noConnection = false;
-    }
-
-    final QuerySnapshot<Map<String, dynamic>> querySnapShoot;
-    if (isRefresh) results.clear();
-    if (results.isEmpty) {
-      querySnapShoot = await db
-          .collection('Results')
-          .orderBy('publisedDate', descending: true)
-          .limit(_maxLimit)
-          .get();
-    } else {
-      querySnapShoot = await db
-          .collection('Results')
-          .orderBy('publisedDate', descending: true)
-          .startAfterDocument(results[results.length - 1])
-          .limit(_maxLimit)
-          .get();
-    }
-
-    if (isRefresh) {
-      results.addAll(querySnapShoot.docs);
-    } else {
-      results.addAll(querySnapShoot.docs);
-    }
-    if (mounted) setState(() {});
-  }
+  DocumentSnapshot? _lastDoc;
 
   @override
   void initState() {
     super.initState();
-    getData(false);
+    _getData().then((value) => setState(() => _isRefreshing = false));
+  }
+
+  Future<void> _getData({bool isRefresh = false}) async {
+    try {
+      _failedToFecth = false;
+      if (isRefresh) {
+        _results.clear();
+        _lastDoc = null;
+      }
+
+      var data = await fetchData(collection: collection, lastDoc: _lastDoc);
+      _results.addAll(data);
+      if (_results.isNotEmpty) {
+        _lastDoc = _results[_results.length - 1];
+      } else {
+        _lastDoc = null;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+      setState(() => _failedToFecth = true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final data = results.map((c) => c.data() as Map<String, dynamic>).toList();
     return Scaffold(
       appBar: AppBar(
         title: Txt(AppLocalizations.of(context)!.results),
@@ -84,40 +76,86 @@ class _ResultScreenState extends State<ResultScreen> {
               showSearch(
                   context: context,
                   // delegate to customize the search bar
-                  delegate: CustomSearchDelegate(collectionName: 'Results'));
+                  delegate: CustomSearchDelegate(collectionName: collection));
             },
             icon: const Icon(Icons.search),
           ),
         ],
       ),
       drawer: const MyDrawer(),
-      body: Parent(
-        style: ParentStyle(),
-        child: RefreshIndicator(
-          onRefresh: onRefresh,
-          child: _noConnection
+      body: _isRefreshing
+          ? Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(AppLocalizations.of(context)!.pleaseWait),
+                  const SizedBox(width: 5),
+                  Platform.isAndroid
+                      ? const SizedBox(
+                          width: 15,
+                          height: 15,
+                          child: CircularProgressIndicator(
+                            color: Colors.grey,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const CupertinoActivityIndicator()
+                ],
+              ),
+            )
+          : _failedToFecth
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(AppLocalizations.of(context)!.noIternetConnection),
                       ElevatedButton(
-                          onPressed: () => getData(false),
-                          child: const Text('Refresh'))
+                          onPressed: () => _getData(isRefresh: true)
+                              .then((value) => setState(() {})),
+                          child: Text(AppLocalizations.of(context)!.refresh))
                     ],
                   ),
                 )
-              : listView(data, 'Results', controller: _scrollController,
-                  getMore: () {
-                  setState(() {
-                    _isGettingMore = true;
-                  });
-                  getData(false).then((value) => setState(() {
-                        _isGettingMore = false;
-                      }));
-                }, isGettingMore: _isGettingMore),
-        ),
-      ),
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    _getData(isRefresh: true).then((value) => setState(() {}));
+                  },
+                  child: ListView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    children: [
+                      ..._results
+                          .map((doc) => ResultItem.fromObject(
+                              doc.data() as Map<String, dynamic>))
+                          .toList(),
+                      Center(
+                        child: TextButton(
+                          onPressed: _isGettingMore
+                              ? null
+                              : () {
+                                  setState(() => _isGettingMore = true);
+                                  _getData().then((value) =>
+                                      setState(() => _isGettingMore = false));
+                                },
+                          child: _isGettingMore
+                              ? Platform.isAndroid
+                                  ? const SizedBox(
+                                      width: 15,
+                                      height: 15,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.grey,
+                                      ),
+                                    )
+                                  : const CupertinoActivityIndicator()
+                              : Text(AppLocalizations.of(context)!.more),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
       floatingActionButton: SizedBox(
         height: 30.0,
         width: 30.0,
@@ -128,10 +166,6 @@ class _ResultScreenState extends State<ResultScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> onRefresh() async {
-    getData(true);
   }
 
   void _scrollDown() {

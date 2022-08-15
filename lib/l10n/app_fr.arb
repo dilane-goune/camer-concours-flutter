@@ -31,5 +31,7 @@
   "close": "Fermer",
   "localOf": "Of",
   "noIternetConnection": "Pas de connexion Internet.",
-  "refresh": "Actualiser"
+  "refresh": "Actualiser",
+  "openWithAnotherApp": "Ouvrir avec une autre application",
+  "pleaseWait": "Svp patientez"
 }

@@ -34,5 +34,7 @@
   "close": "Close",
   "localOf": "Of",
   "noIternetConnection": "No internet connection.",
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "openWithAnotherApp": "Open in with another app",
+  "pleaseWait": "Please wait"
 }

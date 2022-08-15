@@ -65,11 +65,11 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           ListTile(
             leading: Icon(
-              AppData.getDarkMode() ? Icons.dark_mode : Icons.light_mode,
+              AppData.getDarkMode ? Icons.dark_mode : Icons.light_mode,
             ),
             title: Text(AppLocalizations.of(context)!.darkMode),
             trailing: Switch(
-              value: AppData.getDarkMode(),
+              value: AppData.getDarkMode,
               onChanged: toggleDarkMode,
             ),
           )

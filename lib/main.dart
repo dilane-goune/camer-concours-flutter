@@ -76,11 +76,11 @@ class MyApp extends StatelessWidget {
             FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
           ],
           routes: {
-            "concours": (context) => ConcourScreen(
+            "concours": (context) => ConcoursScreen(
                   analytics: analytics,
                   observer: observer,
                 ),
-            "results": (context) => ResultScreen(
+            "results": (context) => ResultsScreen(
                   analytics: analytics,
                   observer: observer,
                 ),
