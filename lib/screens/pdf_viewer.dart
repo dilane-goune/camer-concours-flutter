@@ -127,19 +127,11 @@ class _PDFScreen extends State<PDFScreen> {
         body: Stack(
           children: [
             SfPdfViewer.network(
+              // 'assets/pdf.pdf',
               widget.pdf,
               controller: _pdfViewerController,
               canShowScrollHead: !_showSearchBar,
               onDocumentLoadFailed: handleFailedToLoadPdf,
-              // onTextSelectionChanged: (PdfTextSelectionChangedDetails details) {
-              //   if (details.selectedText == null && _overlayEntry != null) {
-              //     _overlayEntry!.remove();
-              //     _overlayEntry = null;
-              //   } else if (details.selectedText != null &&
-              //       _overlayEntry == null) {
-              //     _showContextMenu(context, details);
-              //   }
-              // },
               enableTextSelection: false,
               currentSearchTextHighlightColor:
                   const Color.fromARGB(176, 219, 233, 18),
@@ -196,10 +188,10 @@ class _PDFScreen extends State<PDFScreen> {
 
   void _handleOnSubmitFind(String value) async {
     setState(() => _isFinding = true);
+    await Future.delayed(Duration.zero);
     if (_findController.value.text.trim().isNotEmpty) {
-      _pdfViewerController.searchText(_findController.value.text).then((value) {
-        _pdfTextSearchResult = value;
-      });
+      _pdfTextSearchResult =
+          await _pdfViewerController.searchText(_findController.value.text);
     } else {
       _pdfTextSearchResult.clear();
     }

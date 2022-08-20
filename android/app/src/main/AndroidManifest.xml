@@ -37,14 +37,5 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-9348831435343142~1573323890"/>
     </application>
-
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.LAUNCHER" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <data android:scheme="https" />
-            <data android:mimeType="application/pdf" />
-        </intent>
-    </queries>
+    
 </manifest>

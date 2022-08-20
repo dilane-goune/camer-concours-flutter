@@ -156,15 +156,17 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     ],
                   ),
                 ),
-      floatingActionButton: SizedBox(
-        height: 30.0,
-        width: 30.0,
-        child: FloatingActionButton(
-          onPressed: _scrollDown,
-          tooltip: AppLocalizations.of(context)!.scrollToTop,
-          child: const Icon(Icons.arrow_upward),
-        ),
-      ),
+      floatingActionButton: _failedToFecth
+          ? null
+          : SizedBox(
+              height: 30.0,
+              width: 30.0,
+              child: FloatingActionButton(
+                onPressed: _scrollDown,
+                tooltip: AppLocalizations.of(context)!.scrollToTop,
+                child: const Icon(Icons.arrow_upward),
+              ),
+            ),
     );
   }
 

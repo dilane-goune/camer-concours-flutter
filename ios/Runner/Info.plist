@@ -49,7 +49,7 @@
 	<string>ca-app-pub-9348831435343142~5506197023</string>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app requires to save files in your storage.</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
 </dict>
 </plist>

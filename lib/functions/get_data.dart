@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<List<DocumentSnapshot>> fetchData(
     {required String collection,
     DocumentSnapshot? lastDoc,
     String? orderBy}) async {
+  await InternetAddress.lookup('google.com');
+
   final db = FirebaseFirestore.instance;
   const maxLimit = 100;
 

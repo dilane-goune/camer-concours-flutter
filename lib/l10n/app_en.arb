@@ -36,5 +36,7 @@
   "noIternetConnection": "No internet connection.",
   "refresh": "Refresh",
   "openWithAnotherApp": "Open in with another app",
-  "pleaseWait": "Please wait"
+  "pleaseWait": "Please wait",
+  "updateIsAvailable": "An update is available",
+  "getIt": "An update is available"
 }

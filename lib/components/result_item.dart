@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:carmer_concours/utils/app_data.dart' show DEFAULT_IMAGE;
+import 'package:carmer_concours/utils/app_data.dart'
+    show AppData, DEFAULT_IMAGE;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:division/division.dart';
 import 'package:flutter/material.dart';
@@ -75,11 +76,16 @@ class _ResultItemState extends State<ResultItem> {
                   children: [
                     Txt(
                       '${AppLocalizations.of(context)!.result} ${school['acronym']} ${widget.publisedDate.year}',
-                      style: TxtStyle()..fontSize(18),
+                      style: TxtStyle()
+                        ..fontSize(18)
+                        ..textColor(AppData.textColor),
                     ),
                     Txt(
                       '${school['name']}',
-                      style: TxtStyle()..fontSize(14),
+                      style: TxtStyle()
+                        ..fontSize(14)
+                        ..textColor(AppData.textColor)
+                        ..textColor(AppData.textColor),
                     ),
                   ],
                 ),
@@ -109,11 +115,11 @@ class _ResultItemState extends State<ResultItem> {
                         .format(widget.publisedDate),
                 style: TxtStyle()
                   ..italic()
-                  ..textColor(Colors.red),
+                  ..textColor(Colors.red.shade400),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, 'concour-full',
+                  Navigator.pushNamed(context, 'pdf-viewer',
                       arguments: <String, String>{
                         'title': widget.title,
                         'pdf': widget.pdf['url'] ?? ''
@@ -144,12 +150,16 @@ class Label extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Txt(label, style: TxtStyle()..margin(bottom: 3, right: 10)),
+          Txt(label,
+              style: TxtStyle()
+                ..margin(bottom: 3, right: 10)
+                ..textColor(AppData.textColor)),
           Txt(
             value,
             style: TxtStyle()
               ..add(valueStyle)
-              ..textOverflow(TextOverflow.ellipsis),
+              ..textOverflow(TextOverflow.ellipsis)
+              ..textColor(AppData.textColor),
           )
         ],
       ),

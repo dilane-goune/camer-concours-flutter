@@ -1,3 +1,4 @@
+import 'package:carmer_concours/utils/app_data.dart';
 import 'package:division/division.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,15 +21,11 @@ class AboutScreen extends StatelessWidget {
                 child: ListView(
                   children: [
                     const SizedBox(height: 20),
-
                     const Center(
                       child: CircleAvatar(
                         radius: 60,
-                        // foregroundImage: AssetImage('assets/images/logo.jpeg'),
-                        child: Icon(
-                          Icons.book,
-                          size: 70,
-                        ),
+                        foregroundImage: AssetImage('assets/images/logo.png'),
+                        backgroundColor: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -37,38 +34,51 @@ class AboutScreen extends StatelessWidget {
                       style: TxtStyle()
                         ..fontSize(18)
                         ..textAlign.center()
+                        ..textColor(AppData.textColor)
                         // ..margin(bottom: 5)
                         ..fontWeight(FontWeight.bold),
                     ),
-                    // Txt(packageName),
-
                     Txt(
                       'Version $version',
-                      style: TxtStyle()..textAlign.center(),
+                      style: TxtStyle()
+                        ..textAlign.center()
+                        ..textColor(AppData.textColor),
                     ),
                     const SizedBox(height: 20),
-
                     Txt(
                       'Developed by',
                       style: TxtStyle()
                         ..textAlign.center()
-                        ..margin(bottom: 5),
+                        ..margin(bottom: 5)
+                        ..fontSize(12)
+                        ..italic()
+                        ..textColor(AppData.textColor)
+                        ..opacity(.5),
                     ),
-
-                    const ListTile(
-                      leading: Icon(Icons.person, size: 40),
-                      title: Text('Dilane Goune'),
-                      subtitle: Text('Sofware Developer'),
+                    ListTile(
+                      // leading: const Icon(Icons.person, size: 40),
+                      title: const Text('Dilane Goune'),
+                      subtitle: const Text('Sofware Developer'),
+                      trailing: IconButton(
+                        onPressed: () {},
+                        icon:
+                            Image.asset('assets/images/github-transparent.png'),
+                        tooltip: 'Github',
+                      ),
                     ),
                     const Divider(),
-
-                    const ListTile(
-                      leading: Icon(Icons.person, size: 40),
-                      title: Text('Ngniguepa Faha'),
-                      subtitle: Text('Sofware Developer'),
+                    ListTile(
+                      // leading: const Icon(Icons.person, size: 40),
+                      title: const Text('Ngniguepa Faha'),
+                      subtitle: const Text('Sofware Developer'),
+                      trailing: IconButton(
+                        onPressed: () {},
+                        icon:
+                            Image.asset('assets/images/github-transparent.png'),
+                        tooltip: 'Github',
+                      ),
                     ),
                     const Divider(),
-
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

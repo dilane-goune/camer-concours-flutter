@@ -33,5 +33,7 @@
   "noIternetConnection": "Pas de connexion Internet.",
   "refresh": "Actualiser",
   "openWithAnotherApp": "Ouvrir avec une autre application",
-  "pleaseWait": "Svp patientez"
+  "pleaseWait": "Svp patientez",
+  "updateIsAvailable": "An update is available",
+  "getIt": "An update is available"
 }

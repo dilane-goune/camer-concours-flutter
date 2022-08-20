@@ -34,21 +34,20 @@ dependencies:
   dio: ^4.0.6
   shared_preferences: ^2.0.15
   provider: ^6.0.3
-  day: ^0.8.0
   url_launcher: ^6.1.5
   syncfusion_flutter_pdfviewer: ^20.2.40-beta
   package_info: ^2.0.2
   cupertino_icons: ^1.0.2
   firebase_core: ^1.20.0
   firebase_analytics: ^9.3.0
+  firebase_messaging: ^12.0.1
   cloud_firestore: ^3.4.3
   google_mobile_ads: ^2.0.0
   flutter_localizations:
     sdk: flutter
   intl: ^0.17.0
-  firebase_messaging: ^12.0.1
   syncfusion_flutter_pdf: ^20.2.43
-  connectivity_plus: ^2.3.6+1
+  overlay_support: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -59,7 +58,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/logo.jpeg"
+  image_path: "assets/images/logo.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
 
   # The "flutter_lints" package below contains a set of recommended lints to

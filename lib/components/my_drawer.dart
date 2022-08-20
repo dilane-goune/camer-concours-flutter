@@ -1,4 +1,5 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:carmer_concours/components/update_button.dart';
 import 'package:carmer_concours/utils/app_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -21,12 +22,9 @@ class _MyDrawerState extends State<MyDrawer> {
             child: Column(
               children: const [
                 CircleAvatar(
-                  radius: 60,
-                  // child: Icon(
-                  //   Icons.book,
-                  //   size: 70,
-                  // ),
-                  foregroundImage: AssetImage('assets/images/logo.jpeg'),
+                  radius: 70,
+                  foregroundImage: AssetImage('assets/images/logo.png'),
+                  backgroundColor: Colors.white,
                 ),
               ],
             ),
@@ -47,14 +45,6 @@ class _MyDrawerState extends State<MyDrawer> {
               Navigator.pushReplacementNamed(context, 'results');
             },
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.settings),
-          //   title: Text(AppLocalizations.of(context)!.settings),
-          //   onTap: () {
-          //     Navigator.pop(context);
-          //     Navigator.pushNamed(context, 'settings');
-          //   },
-          // ),
           ListTile(
             leading: const Icon(Icons.info),
             title: Text(AppLocalizations.of(context)!.about),
@@ -65,14 +55,15 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           ListTile(
             leading: Icon(
-              AppData.getDarkMode ? Icons.dark_mode : Icons.light_mode,
+              AppData.darkMode ? Icons.dark_mode : Icons.light_mode,
             ),
             title: Text(AppLocalizations.of(context)!.darkMode),
             trailing: Switch(
-              value: AppData.getDarkMode,
+              value: AppData.darkMode,
               onChanged: toggleDarkMode,
             ),
-          )
+          ),
+          const UpdateButton(),
         ],
       ),
     );

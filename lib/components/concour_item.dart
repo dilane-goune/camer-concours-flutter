@@ -82,12 +82,17 @@ class _ConcourItemState extends State<ConcourItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Txt(
-                      '${AppLocalizations.of(context)!.concour} ${school['acronym']} ${widget.publisedDate.year}',
-                      style: TxtStyle()..fontSize(18),
+                      widget.title,
+                      // '${AppLocalizations.of(context)!.concour} ${school['acronym']} ${widget.publisedDate.year}',
+                      style: TxtStyle()
+                        ..fontSize(18)
+                        ..textColor(AppData.textColor),
                     ),
                     Txt(
                       '${school['name']}',
-                      style: TxtStyle()..fontSize(14),
+                      style: TxtStyle()
+                        ..fontSize(14)
+                        ..textColor(AppData.textColor),
                     ),
                   ],
                 ),
@@ -125,11 +130,11 @@ class _ConcourItemState extends State<ConcourItem> {
                 '${AppLocalizations.of(context)!.publisedDate} ${DateFormat.yMMMMd(Platform.localeName).format(widget.publisedDate)}',
                 style: TxtStyle()
                   ..italic()
-                  ..textColor(Colors.red),
+                  ..textColor(Colors.red.shade400),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, 'concour-full',
+                  Navigator.pushNamed(context, 'pdf-viewer',
                       arguments: <String, String>{
                         'title': widget.title,
                         'pdf': widget.pdf['url'] ?? ''
@@ -160,12 +165,16 @@ class Label extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Txt(label, style: TxtStyle()..margin(bottom: 3, right: 10)),
+          Txt(label,
+              style: TxtStyle()
+                ..margin(bottom: 3, right: 10)
+                ..textColor(AppData.textColor)),
           Txt(
             value,
             style: TxtStyle()
               ..add(valueStyle)
-              ..textOverflow(TextOverflow.ellipsis),
+              ..textOverflow(TextOverflow.ellipsis)
+              ..textColor(AppData.textColor),
           )
         ],
       ),
