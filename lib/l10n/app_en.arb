@@ -12,7 +12,7 @@
   "writingDate": "Writing date",
   "documebtsDeadLine": "Documents deadline",
   "requiredLevels": "Level",
-  "publisedDate": "Publised on",
+  "publishedDate": "Publised on",
   "numberOfCandidates": "Number of candidates",
   "numberPassed": "Number passed",
   "feel": "Feel",
@@ -38,5 +38,7 @@
   "openWithAnotherApp": "Open in with another app",
   "pleaseWait": "Please wait",
   "updateIsAvailable": "An update is available",
-  "getIt": "An update is available"
+  "getIt": "GET IT",
+  "rateThisApp": "Rate this App",
+  "develppedBy": "Developed by"
 }

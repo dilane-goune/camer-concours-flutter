@@ -13,7 +13,7 @@ class ResultItem extends StatefulWidget {
   final String title;
   final int? numberSat;
   final int? numberPassed;
-  final DateTime publisedDate;
+  final DateTime publishedDate;
   final DateTime createdAt;
   final Map<String, dynamic> pdf;
   final DocumentReference schoolRef;
@@ -23,7 +23,7 @@ class ResultItem extends StatefulWidget {
         //  id = item['id'] as String,
         numberSat = item['numberSat'] as int?,
         numberPassed = item['numberPassed'] as int?,
-        publisedDate = DateTime.parse(item['publisedDate'] as String),
+        publishedDate = DateTime.parse(item['publishedDate'] as String),
         createdAt = DateTime.parse(item['createdAt'] as String),
         pdf = item['pdf'] as Map<String, dynamic>,
         schoolRef = item['schoolRef'] as DocumentReference,
@@ -75,7 +75,7 @@ class _ResultItemState extends State<ResultItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Txt(
-                      '${AppLocalizations.of(context)!.result} ${school['acronym']} ${widget.publisedDate.year}',
+                      widget.title,
                       style: TxtStyle()
                         ..fontSize(18)
                         ..textColor(AppData.textColor),
@@ -109,10 +109,10 @@ class _ResultItemState extends State<ResultItem> {
             children: [
               Txt(
                 // ignore: prefer_interpolation_to_compose_strings
-                AppLocalizations.of(context)!.publisedDate +
+                AppLocalizations.of(context)!.publishedDate +
                     ' ' +
                     DateFormat.yMMMMd(Platform.localeName)
-                        .format(widget.publisedDate),
+                        .format(widget.publishedDate),
                 style: TxtStyle()
                   ..italic()
                   ..textColor(Colors.red.shade400),

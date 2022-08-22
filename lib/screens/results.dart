@@ -110,8 +110,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     children: [
                       Text(AppLocalizations.of(context)!.noIternetConnection),
                       ElevatedButton(
-                          onPressed: () => _getData(isRefresh: true)
-                              .then((value) => setState(() {})),
+                          onPressed: () {
+                            setState(() => _isRefreshing = true);
+                            _getData(isRefresh: true).then((value) =>
+                                setState(() => _isRefreshing = false));
+                          },
                           child: Text(AppLocalizations.of(context)!.refresh))
                     ],
                   ),

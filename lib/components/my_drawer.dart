@@ -3,6 +3,7 @@ import 'package:carmer_concours/components/update_button.dart';
 import 'package:carmer_concours/utils/app_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({Key? key}) : super(key: key);
@@ -19,14 +20,12 @@ class _MyDrawerState extends State<MyDrawer> {
         children: [
           DrawerHeader(
             padding: const EdgeInsets.all(5),
-            child: Column(
-              children: const [
-                CircleAvatar(
-                  radius: 70,
-                  foregroundImage: AssetImage('assets/images/logo.png'),
-                  backgroundColor: Colors.white,
-                ),
-              ],
+            child: Center(
+              child: Image.asset(
+                'assets/images/logo.png',
+                height: 110,
+                width: 110,
+              ),
             ),
           ),
           ListTile(
@@ -53,6 +52,7 @@ class _MyDrawerState extends State<MyDrawer> {
               Navigator.pushNamed(context, 'about');
             },
           ),
+          const Divider(),
           ListTile(
             leading: Icon(
               AppData.darkMode ? Icons.dark_mode : Icons.light_mode,
@@ -63,7 +63,13 @@ class _MyDrawerState extends State<MyDrawer> {
               onChanged: toggleDarkMode,
             ),
           ),
-          const UpdateButton(),
+          if (AppData.updateIsAvailable)
+            UpdateButton(
+              onPressed: () {
+                launchUrl(Uri.parse(AppData.updateURL),
+                    mode: LaunchMode.externalApplication);
+              },
+            ),
         ],
       ),
     );

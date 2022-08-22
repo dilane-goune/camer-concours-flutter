@@ -16,13 +16,13 @@ Future<List<DocumentSnapshot>> fetchData(
   if (lastDoc == null) {
     querySnapShoot = await db
         .collection(collection)
-        .orderBy(orderBy ?? 'publisedDate', descending: true)
+        .orderBy(orderBy ?? 'publishedDate', descending: true)
         .limit(maxLimit)
         .get();
   } else {
     querySnapShoot = await db
         .collection(collection)
-        .orderBy(orderBy ?? 'publisedDate', descending: true)
+        .orderBy(orderBy ?? 'publishedDate', descending: true)
         .startAfterDocument(lastDoc)
         .limit(maxLimit)
         .get();

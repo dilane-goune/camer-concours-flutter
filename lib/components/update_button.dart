@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:carmer_concours/utils/app_data.dart';
 import 'package:division/division.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class UpdateButton extends StatefulWidget {
-  final void Function(int n)? onPressed;
+  final void Function()? onPressed;
   const UpdateButton({
     Key? key,
     this.onPressed,
@@ -17,9 +18,10 @@ class UpdateButton extends StatefulWidget {
 
 class _UpdateButtonState extends State<UpdateButton> {
   bool _scaleUp = false;
+  late Timer _timer;
 
   void _animate() {
-    Timer.periodic(const Duration(milliseconds: 400), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 400), (timer) {
       setState(() => _scaleUp = !_scaleUp);
     });
   }
@@ -27,7 +29,13 @@ class _UpdateButtonState extends State<UpdateButton> {
   @override
   void initState() {
     super.initState();
-    // _animate();
+    _animate();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 
   @override
@@ -35,32 +43,39 @@ class _UpdateButtonState extends State<UpdateButton> {
     return Parent(
       style: ParentStyle()
         ..background.color(Colors.green)
-        ..animate(200, Curves.easeInOut)
-        ..padding(horizontal: 10)
+        ..padding(horizontal: 5, vertical: 5)
+        ..margin(horizontal: 5)
         ..borderRadius(all: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Image.asset('assets/images/update-icon.png', height: 40, width: 40),
+          Image.asset('assets/images/update-icon.png', height: 30, width: 30),
           Txt(
-            'An update is available',
-            // AppLocalizations.of(context)!.updateIsAvailable
+            // 'An update is available',
+            AppLocalizations.of(context)!.updateIsAvailable,
             style: TxtStyle()
               ..fontFamily('Roboto')
-              ..fontSize(16)
+              ..fontSize(11)
               ..textColor(AppData.textColor),
           ),
           Parent(
             style: ParentStyle()
               ..scale(_scaleUp ? 1.1 : 1)
-              ..animate(200, Curves.easeInOut),
-            child: ElevatedButton(
-              onPressed: () {},
-              child: const Txt('GET IT'
-                  // AppLocalizations.of(context)!.getIt
-                  ),
+              ..animate(500, Curves.easeInOut),
+            child: SizedBox(
+              // width: 110.0,
+              height: 30.0,
+              child: ElevatedButton(
+                onPressed: widget.onPressed,
+                child: Txt(
+                  AppLocalizations.of(context)!.getIt,
+                  style: TxtStyle()
+                    ..fontSize(10)
+                    ..textColor(Colors.blue),
+                ),
+              ),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -42,6 +42,9 @@ class _PDFScreen extends State<PDFScreen> {
   @override
   void dispose() {
     _interstitialAd?.dispose();
+    _pdfTextSearchResult.clear();
+    _findController.dispose();
+    _pdfViewerController.clearSelection();
     super.dispose();
   }
 
@@ -67,7 +70,7 @@ class _PDFScreen extends State<PDFScreen> {
                   textInputAction: TextInputAction.search,
                   onSubmitted: _handleOnSubmitFind,
                 )
-              : Text(widget.title, style: const TextStyle(fontSize: 16)),
+              : Text(widget.title, style: const TextStyle(fontSize: 12)),
           leading: const BackButton(),
           toolbarHeight: 50,
           actions: [
@@ -134,9 +137,9 @@ class _PDFScreen extends State<PDFScreen> {
               onDocumentLoadFailed: handleFailedToLoadPdf,
               enableTextSelection: false,
               currentSearchTextHighlightColor:
-                  const Color.fromARGB(176, 219, 233, 18),
+                  const Color.fromARGB(221, 219, 233, 18),
               otherSearchTextHighlightColor:
-                  const Color.fromARGB(174, 196, 41, 41),
+                  const Color.fromARGB(172, 196, 41, 41),
             ),
           ],
         ),
@@ -187,13 +190,12 @@ class _PDFScreen extends State<PDFScreen> {
   }
 
   void _handleOnSubmitFind(String value) async {
+    _pdfTextSearchResult.clear();
     setState(() => _isFinding = true);
     await Future.delayed(Duration.zero);
     if (_findController.value.text.trim().isNotEmpty) {
-      _pdfTextSearchResult =
-          await _pdfViewerController.searchText(_findController.value.text);
-    } else {
-      _pdfTextSearchResult.clear();
+      _pdfTextSearchResult = await _pdfViewerController
+          .searchText(_findController.value.text.trim());
     }
     setState(() => _isFinding = false);
   }

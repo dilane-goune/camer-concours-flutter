@@ -3,6 +3,7 @@ import 'package:division/division.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:package_info/package_info.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -21,23 +22,23 @@ class AboutScreen extends StatelessWidget {
                 child: ListView(
                   children: [
                     const SizedBox(height: 20),
-                    const Center(
-                      child: CircleAvatar(
-                        radius: 60,
-                        foregroundImage: AssetImage('assets/images/logo.png'),
-                        backgroundColor: Colors.white,
+                    Center(
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        height: 110,
+                        width: 110,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Txt(
-                      'Camer Concours',
-                      style: TxtStyle()
-                        ..fontSize(18)
-                        ..textAlign.center()
-                        ..textColor(AppData.textColor)
-                        // ..margin(bottom: 5)
-                        ..fontWeight(FontWeight.bold),
-                    ),
+                    const SizedBox(height: 10),
+                    // Txt(
+                    //   'Camer Concours',
+                    //   style: TxtStyle()
+                    //     ..fontSize(18)
+                    //     ..textAlign.center()
+                    //     ..textColor(AppData.textColor)
+                    //     // ..margin(bottom: 5)
+                    //     ..fontWeight(FontWeight.bold),
+                    // ),
                     Txt(
                       'Version $version',
                       style: TxtStyle()
@@ -46,7 +47,7 @@ class AboutScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Txt(
-                      'Developed by',
+                      AppLocalizations.of(context)!.develppedBy,
                       style: TxtStyle()
                         ..textAlign.center()
                         ..margin(bottom: 5)
@@ -60,7 +61,11 @@ class AboutScreen extends StatelessWidget {
                       title: const Text('Dilane Goune'),
                       subtitle: const Text('Sofware Developer'),
                       trailing: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          launchUrl(
+                              Uri.parse('https://github.com/dilane-goune'),
+                              mode: LaunchMode.externalApplication);
+                        },
                         icon:
                             Image.asset('assets/images/github-transparent.png'),
                         tooltip: 'Github',
@@ -72,7 +77,10 @@ class AboutScreen extends StatelessWidget {
                       title: const Text('Ngniguepa Faha'),
                       subtitle: const Text('Sofware Developer'),
                       trailing: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          launchUrl(Uri.parse('https://github.com/johnneper'),
+                              mode: LaunchMode.externalApplication);
+                        },
                         icon:
                             Image.asset('assets/images/github-transparent.png'),
                         tooltip: 'Github',
@@ -89,9 +97,10 @@ class AboutScreen extends StatelessWidget {
                           },
                           child: const Text('Licences'),
                         ),
-                        const TextButton(
+                        TextButton(
                           onPressed: null,
-                          child: Text('Rate this App'),
+                          child:
+                              Text(AppLocalizations.of(context)!.rateThisApp),
                         ),
                       ],
                     )

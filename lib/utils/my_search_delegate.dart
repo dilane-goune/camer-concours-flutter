@@ -76,16 +76,50 @@ class CustomSearchDelegate extends SearchDelegate {
           }
           final targets = asyncSnapshot.data as List<Map<String, dynamic>>;
 
-          return ListView.builder(
-            itemBuilder: (context, index) {
-              return Txt(
-                targets[index]['title'],
-                style: TxtStyle()
-                  ..fontSize(16)
-                  ..margin(vertical: 5),
-              );
-            },
-            itemCount: targets.length,
+          return Parent(
+            style: ParentStyle()..padding(horizontal: 10),
+            child: ListView.separated(
+              itemBuilder: (context, index) {
+                return Parent(
+                  style: ParentStyle()..ripple(true),
+                  gesture: Gestures()
+                    ..onTap(() {
+                      close(context, null);
+                      Navigator.pushNamed(context, 'pdf-viewer',
+                          arguments: <String, String>{
+                            'title': targets[index]['title'],
+                            'pdf': targets[index]['pdf']['url'] ?? ''
+                          });
+                    }),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Txt(
+                        targets[index]['title'],
+                        style: TxtStyle()
+                          ..fontSize(12)
+                          ..maxLines(3)
+                          ..textOverflow(TextOverflow.ellipsis)
+                          ..maxWidth(MediaQuery.of(context).size.width * .84),
+                      ),
+                      Txt(
+                        targets[index]['publishedDate']
+                            .toString()
+                            .substring(0, 4),
+                        style: TxtStyle()
+                          ..fontSize(14)
+                          ..margin(vertical: 5)
+                          ..textColor(Colors.green),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              itemCount: targets.length,
+              separatorBuilder: (BuildContext context, int index) {
+                return const Divider();
+              },
+            ),
           );
         } else {
           return const Center(child: CircularProgressIndicator());

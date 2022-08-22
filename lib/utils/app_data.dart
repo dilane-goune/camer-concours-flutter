@@ -5,13 +5,14 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppData extends ChangeNotifier {
   static bool darkMode = false;
   static Color textColor = Colors.white;
   static bool updateIsAvailable = false;
+  static late String updateURL;
+  static const String currentVersion = '1.0.0';
 
   static toggleDarkMode() {
     darkMode = !darkMode;
@@ -65,17 +66,20 @@ class AppData extends ChangeNotifier {
     }
   }
 
-  Future<void> checkUpdate() async {
+  static Future<void> checkUpdate() async {
     try {
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      var doc = await FirebaseFirestore.instance
+      var querySnapshot = await FirebaseFirestore.instance
           .collection('AppVersions')
+          .orderBy('version', descending: true)
           .limit(1)
           .get();
 
-      var data = doc.docs[0].data();
-      if ((data['version'] as String).compareTo(packageInfo.version) < 0) {
-        updateIsAvailable = true;
+      if (querySnapshot.docs.isNotEmpty) {
+        var data = querySnapshot.docs[0].data();
+        if ((data['version'] as String).compareTo(currentVersion) > 0) {
+          updateIsAvailable = true;
+          updateURL = data['url'] as String;
+        }
       }
     } on Exception catch (_) {}
   }

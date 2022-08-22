@@ -9,6 +9,7 @@ import 'package:carmer_concours/screens/results.dart';
 import 'package:carmer_concours/utils/app_data.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -29,7 +31,9 @@ Future<void> main() async {
   AppData.init(savedThemeMode == AdaptiveThemeMode.dark);
   Intl.defaultLocale = Platform.localeName;
   AppData.sendNewUserAnalytics();
+  AppData.checkUpdate();
   runApp(MyApp(savedThemeMode: savedThemeMode));
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatefulWidget {

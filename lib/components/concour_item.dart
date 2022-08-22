@@ -15,7 +15,7 @@ class ConcourItem extends StatefulWidget {
   final num feel;
   final DateTime writingDate;
   final DateTime documentsDeadLine;
-  final DateTime publisedDate;
+  final DateTime publishedDate;
   final DateTime createdAt;
   final String level;
   final Map<String, dynamic> pdf;
@@ -27,7 +27,7 @@ class ConcourItem extends StatefulWidget {
         numberOfPlaces = item['numberOfPlaces'] as int,
         writingDate = DateTime.parse(item['writingDate'] as String),
         documentsDeadLine = DateTime.parse(item['documentsDeadLine'] as String),
-        publisedDate = DateTime.parse(item['publisedDate'] as String),
+        publishedDate = DateTime.parse(item['publishedDate'] as String),
         createdAt = DateTime.parse(item['createdAt'] as String),
         level = item['level'] as String,
         pdf = item['pdf'] as Map<String, dynamic>,
@@ -83,7 +83,7 @@ class _ConcourItemState extends State<ConcourItem> {
                   children: [
                     Txt(
                       widget.title,
-                      // '${AppLocalizations.of(context)!.concour} ${school['acronym']} ${widget.publisedDate.year}',
+                      // '${AppLocalizations.of(context)!.concour} ${school['acronym']} ${widget.publishedDate.year}',
                       style: TxtStyle()
                         ..fontSize(18)
                         ..textColor(AppData.textColor),
@@ -127,7 +127,7 @@ class _ConcourItemState extends State<ConcourItem> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Txt(
-                '${AppLocalizations.of(context)!.publisedDate} ${DateFormat.yMMMMd(Platform.localeName).format(widget.publisedDate)}',
+                '${AppLocalizations.of(context)!.publishedDate} ${DateFormat.yMMMMd(Platform.localeName).format(widget.publishedDate)}',
                 style: TxtStyle()
                   ..italic()
                   ..textColor(Colors.red.shade400),

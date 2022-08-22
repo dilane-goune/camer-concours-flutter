@@ -9,7 +9,7 @@
   "writingDate": "Date de Composition",
   "documebtsDeadLine": "Date limit des dossier",
   "requiredLevels": "Niveau",
-  "publisedDate": "Publié le",
+  "publishedDate": "Publié le",
   "numberOfCandidates": "Effective total",
   "numberPassed": "Effective réussit",
   "feel": "Frais",
@@ -34,6 +34,8 @@
   "refresh": "Actualiser",
   "openWithAnotherApp": "Ouvrir avec une autre application",
   "pleaseWait": "Svp patientez",
-  "updateIsAvailable": "An update is available",
-  "getIt": "An update is available"
+  "updateIsAvailable": "Une mise à jour est disponible",
+  "getIt": "Télécharger",
+  "rateThisApp": "Évaluer l'application",
+  "develppedBy": "Développé par"
 }
