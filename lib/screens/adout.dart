@@ -30,15 +30,6 @@ class AboutScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    // Txt(
-                    //   'Camer Concours',
-                    //   style: TxtStyle()
-                    //     ..fontSize(18)
-                    //     ..textAlign.center()
-                    //     ..textColor(AppData.textColor)
-                    //     // ..margin(bottom: 5)
-                    //     ..fontWeight(FontWeight.bold),
-                    // ),
                     Txt(
                       'Version $version',
                       style: TxtStyle()

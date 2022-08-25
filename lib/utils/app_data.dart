@@ -1,11 +1,13 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AppData extends ChangeNotifier {
   static bool darkMode = false;
@@ -24,6 +26,40 @@ class AppData extends ChangeNotifier {
     textColor = darkMode ? Colors.white : Colors.black;
   }
 
+  static Future<void> requestNotificationPermission(
+      BuildContext context) async {
+    final bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+    if (!isAllowed) {
+      final bool? shouldRequestPermission = await showDialog<bool>(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CupertinoAlertDialog(
+              title: Text(AppLocalizations.of(context)!.notifications),
+              content: Text(
+                AppLocalizations.of(context)!.notificationsPermissionMessage,
+              ),
+              actions: [
+                CupertinoDialogAction(
+                    onPressed: () {
+                      Navigator.of(context).pop<bool>(false);
+                    },
+                    child: Text(AppLocalizations.of(context)!.refuse)),
+                CupertinoDialogAction(
+                    onPressed: () {
+                      Navigator.of(context).pop<bool>(true);
+                    },
+                    child: Text(AppLocalizations.of(context)!.grant)),
+              ],
+            );
+          });
+
+      if (shouldRequestPermission != null && shouldRequestPermission) {
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    }
+  }
+
   static Future<void> sendNewUserAnalytics() async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
@@ -40,29 +76,6 @@ class AppData extends ChangeNotifier {
       }
     } catch (e) {
       if (kDebugMode) print(e);
-    }
-  }
-
-  static Future<void> requestFCMPernission() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-
-    var isAutthorised = sharedPreferences.getBool('authorizedFCM');
-    if (isAutthorised != null && isAutthorised) return;
-
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-    final NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      await sharedPreferences.setBool('authorizedFCM', true);
     }
   }
 

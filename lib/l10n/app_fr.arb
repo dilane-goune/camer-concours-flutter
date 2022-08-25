@@ -37,5 +37,10 @@
   "updateIsAvailable": "Une mise à jour est disponible",
   "getIt": "Télécharger",
   "rateThisApp": "Évaluer l'application",
-  "develppedBy": "Développé par"
+  "develppedBy": "Développé par",
+  "download": "Télécharger",
+  "notifications": "Notifications",
+  "notificationsPermissionMessage": "Camer Concours a besoin d' autorisation pour envoyer des notifications",
+  "refuse": "Refuser",
+  "grant": "Accorder"
 }

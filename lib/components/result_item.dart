@@ -95,9 +95,10 @@ class _ResultItemState extends State<ResultItem> {
           const Divider(),
           if (widget.numberSat != null)
             Label(
-                label: AppLocalizations.of(context)!.numberOfCandidates,
-                value:
-                    '${widget.numberSat} ${AppLocalizations.of(context)!.candites}'),
+              label: AppLocalizations.of(context)!.numberOfCandidates,
+              value:
+                  '${widget.numberSat} ${AppLocalizations.of(context)!.candites}',
+            ),
           if (widget.numberPassed != null)
             Label(
                 label: AppLocalizations.of(context)!.numberPassed,

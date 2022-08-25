@@ -40,5 +40,10 @@
   "updateIsAvailable": "An update is available",
   "getIt": "GET IT",
   "rateThisApp": "Rate this App",
-  "develppedBy": "Developed by"
+  "develppedBy": "Developed by",
+  "download": "Download",
+  "notifications": "Notifications",
+  "notificationsPermissionMessage": "Camer Concours needs permission to access notifications",
+  "refuse": "Refuse",
+  "grant": "Grant"
 }

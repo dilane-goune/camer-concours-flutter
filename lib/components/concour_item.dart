@@ -83,7 +83,6 @@ class _ConcourItemState extends State<ConcourItem> {
                   children: [
                     Txt(
                       widget.title,
-                      // '${AppLocalizations.of(context)!.concour} ${school['acronym']} ${widget.publishedDate.year}',
                       style: TxtStyle()
                         ..fontSize(18)
                         ..textColor(AppData.textColor),

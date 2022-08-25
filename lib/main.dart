@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:carmer_concours/firebase_options.dart';
 import 'package:carmer_concours/screens/adout.dart';
@@ -11,75 +9,77 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+
+// Declared as global, outside of any class
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  AwesomeNotifications().createNotificationFromJsonData(message.data);
+}
+
+void _firebaseMessagingForgroundHandler(RemoteMessage message) {
+  AwesomeNotifications().createNotificationFromJsonData(message.data);
+}
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.instance.subscribeToTopic("all");
+  FirebaseMessaging.onMessage.listen(_firebaseMessagingForgroundHandler);
+
   await MobileAds.instance.initialize();
+
   FirebaseAnalytics.instance.logAppOpen();
+
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
 
   AppData.init(savedThemeMode == AdaptiveThemeMode.dark);
-  Intl.defaultLocale = Platform.localeName;
   AppData.sendNewUserAnalytics();
   AppData.checkUpdate();
+
+  AwesomeNotifications().initialize(
+    // null,
+    'resource://drawable/launcher_icon',
+    [
+      NotificationChannel(
+        channelGroupKey: 'basic_channel_group',
+        channelKey: 'notification_channel',
+        channelName: 'Basic notifications',
+        channelDescription: 'Notification channel for basic tests',
+        defaultColor: Colors.teal,
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      )
+    ],
+    channelGroups: [
+      NotificationChannelGroup(
+          channelGroupkey: 'notification_channel_group',
+          channelGroupName: 'Notification Group')
+    ],
+  );
+
   runApp(MyApp(savedThemeMode: savedThemeMode));
+
   FlutterNativeSplash.remove();
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   final AdaptiveThemeMode? savedThemeMode;
   const MyApp({Key? key, required this.savedThemeMode}) : super(key: key);
 
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  Future<void> setupInteractedMessage() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
-
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
-    if (initialMessage != null) {
-      _handleMessage(initialMessage);
-    }
-
-    // Also handle any interaction when the app is in the background via a
-    // Stream listener
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-  }
-
-  void _handleMessage(RemoteMessage message) {
-    if (message.data['pdf'] != null) {
-      Navigator.pushNamed(context, 'pdf-viewer', arguments: <String, String>{
-        'title': message.notification?.title ?? '',
-        'pdf': message.data['pdf']
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    AppData.requestFCMPernission();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,13 +96,12 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
           primarySwatch: Colors.blue,
         ),
-        initial: widget.savedThemeMode ?? AdaptiveThemeMode.light,
+        initial: savedThemeMode ?? AdaptiveThemeMode.light,
         builder: (theme, darkTheme) => MaterialApp(
           title: 'Camer Concours',
           theme: theme,
           darkTheme: darkTheme,
           debugShowCheckedModeBanner: false,
-          initialRoute: 'concours',
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -116,6 +115,7 @@ class _MyAppState extends State<MyApp> {
           navigatorObservers: [
             FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
           ],
+          initialRoute: 'concours',
           routes: {
             "concours": (context) => ConcoursScreen(
                   analytics: MyApp.analytics,
