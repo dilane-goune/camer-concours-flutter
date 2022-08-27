@@ -202,7 +202,10 @@ class _PDFScreenState extends State<PDFScreen> {
           });
         },
         onAdFailedToLoad: (err) {
-          if (kDebugMode) print('failed to load ad');
+          if (kDebugMode) {
+            print('failed to load ad');
+            print(err);
+          }
         },
       ),
     );

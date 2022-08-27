@@ -1,5 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
+import 'dart:io';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -14,7 +16,7 @@ class AppData extends ChangeNotifier {
   static Color textColor = Colors.white;
   static bool updateIsAvailable = false;
   static late String updateURL;
-  static const String currentVersion = '1.0.0';
+  static const String currentVersion = '1.0.1+2';
 
   static toggleDarkMode() {
     darkMode = !darkMode;
@@ -83,6 +85,7 @@ class AppData extends ChangeNotifier {
     try {
       var querySnapshot = await FirebaseFirestore.instance
           .collection('AppVersions')
+          .where('platform', isEqualTo: Platform.isAndroid ? 'Android' : 'IOS')
           .orderBy('version', descending: true)
           .limit(1)
           .get();
@@ -94,7 +97,7 @@ class AppData extends ChangeNotifier {
           updateURL = data['url'] as String;
         }
       }
-    } on Exception catch (_) {}
+    } catch (_) {}
   }
 }
 

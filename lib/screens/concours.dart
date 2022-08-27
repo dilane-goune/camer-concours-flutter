@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:carmer_concours/components/concour_item.dart';
 import 'package:carmer_concours/components/my_drawer.dart';
 import 'package:carmer_concours/functions/get_data.dart';
-import 'package:carmer_concours/screens/pdf_viewer.dart';
 import 'package:carmer_concours/utils/app_data.dart';
 import 'package:carmer_concours/utils/my_search_delegate.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41,28 +39,8 @@ class _ConcoursScreenState extends State<ConcoursScreen> {
   void initState() {
     super.initState();
     AppData.requestNotificationPermission(context);
-    AwesomeNotifications().actionStream.listen((action) {
-      final payload = action.payload;
-      Future(() {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PDFScreen(
-              title: payload!['title'] ?? '',
-              pdf: payload['pdf'] ?? '',
-            ),
-          ),
-        );
-      });
-    });
 
     _getData().then((value) => setState(() => _isRefreshing = false));
-  }
-
-  @override
-  void dispose() {
-    AwesomeNotifications().dispose();
-    super.dispose();
   }
 
   Future<void> _getData({bool isRefresh = false}) async {

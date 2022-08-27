@@ -33,7 +33,7 @@ class _MyDrawerState extends State<MyDrawer> {
             title: Text(AppLocalizations.of(context)!.concours),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, 'concours');
+              Navigator.pushReplacementNamed(context, 'concours');
             },
           ),
           ListTile(

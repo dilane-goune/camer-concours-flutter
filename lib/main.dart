@@ -73,13 +73,37 @@ Future<void> main() async {
   FlutterNativeSplash.remove();
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
   const MyApp({Key? key, required this.savedThemeMode}) : super(key: key);
 
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    AwesomeNotifications().actionStream.asBroadcastStream().listen((action) {
+      final payload = action.payload;
+      Future(() {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PDFScreen(
+              title: payload!['title'] ?? '',
+              pdf: payload['pdf'] ?? '',
+            ),
+          ),
+        );
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +120,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           primarySwatch: Colors.blue,
         ),
-        initial: savedThemeMode ?? AdaptiveThemeMode.light,
+        initial: widget.savedThemeMode ?? AdaptiveThemeMode.light,
         builder: (theme, darkTheme) => MaterialApp(
           title: 'Camer Concours',
           theme: theme,
